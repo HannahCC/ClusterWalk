@@ -1,5 +1,6 @@
 package whu.cs.cl;
 
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
@@ -12,25 +13,29 @@ public class Node {
 	public Node(Integer idx, Integer freq) {
 		this.idx = idx;
 		this.freq = freq;
+		this.cluster_ids = new HashSet<>();
 	}
 
-	public void addCluster(int cluster_id){
+	public void addCluster(int cluster_id) {
 		this.cluster_ids.add(cluster_id);
 	}
-	
-	public Integer getRandomCluster(){
+
+	public Integer getRandomCluster() {
 		int num = random.nextInt(cluster_ids.size());
 		int i = 0, x = -1;
-		for(int id : this.cluster_ids){
-			if(i++==num){x = id;break;}
+		for (int id : this.cluster_ids) {
+			if (i++ == num) {
+				x = id;
+				break;
+			}
 		}
 		return x;
 	}
-	
-	public void addFrequnce(){
+
+	public void addFrequnce() {
 		this.freq++;
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Node) {
