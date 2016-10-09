@@ -5,12 +5,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class FileUtils {
-	public static void readGraph(String graphFile, Map<Integer, Node> nodes)
-			throws IOException {
+
+	public static void readGraph(String graphFile, Map<Integer, Node> nodes) throws IOException {
 		File f = new File(graphFile);
 		BufferedReader br = new BufferedReader(new FileReader(f));
 		String line = null;
@@ -32,8 +33,7 @@ public class FileUtils {
 		br.close();
 	}
 
-	public static void readCluster(String clusterFile,
-			Map<Integer, Node> nodes, Map<Integer, Set<Node>> clusters)
+	public static void readCluster(String clusterFile, Map<Integer, Node> nodes, Map<Integer, Set<Node>> clusters)
 			throws IOException {
 		File f = new File(clusterFile);
 		BufferedReader br = new BufferedReader(new FileReader(f));
@@ -50,12 +50,16 @@ public class FileUtils {
 					clusters.get(i).add(node);
 				} else {
 					br.close();
-					throw new RuntimeException(
-							"Node in clusters didn't exsit in graph!");
+					throw new RuntimeException("Node in clusters didn't exsit in graph!");
 				}
 			}
 			i++;
 		}
 		br.close();
+	}
+
+	public static void writeWalk(int iter, List<Integer> walk) {
+		// TODO Auto-generated method stub
+
 	}
 }
