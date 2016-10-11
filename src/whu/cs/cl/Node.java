@@ -8,22 +8,22 @@ public class Node {
 	static Random random = new Random();
 	Integer idx = -1;
 	Integer freq = 0;
-	Set<Integer> cluster_ids = null;
+	Set<Integer> clusterIds = null;
 
 	public Node(Integer idx, Integer freq) {
 		this.idx = idx;
 		this.freq = freq;
-		this.cluster_ids = new HashSet<>();
+		this.clusterIds = new HashSet<>();
 	}
 
 	public void addCluster(int cluster_id) {
-		this.cluster_ids.add(cluster_id);
+		this.clusterIds.add(cluster_id);
 	}
 
 	public Integer getRandomCluster() {
-		int num = random.nextInt(cluster_ids.size());
+		int num = random.nextInt(clusterIds.size());
 		int i = 0, x = -1;
-		for (int id : this.cluster_ids) {
+		for (int id : this.clusterIds) {
 			if (i++ == num) {
 				x = id;
 				break;

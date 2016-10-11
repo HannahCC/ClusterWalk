@@ -1,5 +1,6 @@
 package whu.cs.cl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,18 +11,18 @@ import java.util.Set;
 
 public class Walk implements Runnable {
 
-	int iter = -1;
+	int round = -1;
 	Map<Integer, Node> nodes = null;
 	Map<Integer, Set<Node>> clusters = null;
-	Map<Integer, Integer> clusters_freq_sum = null;
+	Map<Integer, Integer> clustersFreqSum = null;
 	Map<Integer, List<Integer>> walks = new HashMap<Integer, List<Integer>>();
 	Random random = new Random();
 
-	public Walk(int iter, Map<Integer, Node> nodes, Map<Integer, Set<Node>> clusters, Map<Integer, Integer> clusters_freq_sum) {
-		this.iter = iter;
+	public Walk(int round, Map<Integer, Node> nodes, Map<Integer, Set<Node>> clusters, Map<Integer, Integer> clustersFreqSum) {
+		this.round = round;
 		this.nodes = nodes;
 		this.clusters = clusters;
-		this.clusters_freq_sum = clusters_freq_sum;
+		this.clustersFreqSum = clustersFreqSum;
 	}
 
 	@Override
@@ -34,10 +35,15 @@ public class Walk implements Runnable {
 				if (cid == cluster_id) {
 					walk.add(node.idx);
 				} else {
-					walk.add(getRandomNodeBiasFreq(entry.getValue(), clusters_freq_sum.get(cid)));
+					walk.add(getRandomNodeBiasFreq(entry.getValue(), clustersFreqSum.get(cid)));
 				}
 			}
-			FileUtils.writeWalk(iter,walk);
+			try {
+				FileUtils.writeWalk(round,walk);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 	}
