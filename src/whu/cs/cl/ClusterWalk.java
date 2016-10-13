@@ -23,16 +23,19 @@ public class ClusterWalk {
 		String clusterAlg = args[3];
 		int clusterSize = Integer.parseInt(args[4]);
 		int rounds = Integer.parseInt(args[5]);
+		int length = Integer.parseInt(args[6]);
 
 		String graphFile = curPath + "graphs/" + dataSet + ".edgelist";
 		String clusterFile = curPath + "clusters/" + dataSet + "_" + clusterAlg
 				+ "_c" + clusterSize + ".clusters";
 		String walkDir = curPath + "cw_walks/";
 		String walkFile = walkDir + dataSet + "_" + clusterAlg + "_c"
-				+ clusterSize + "_cw2" + "_r" + rounds + ".walks";
+				+ clusterSize + "_cw3" + "_r" + rounds + "l" + length
+				+ ".walks";
 
 		Node[] nodes = new Node[dataSize];
 		for (int i = 0; i < dataSize; i++) {
+			
 			nodes[i] = new Node(i + 1);
 		}
 		Cluster[] clusters = new Cluster[clusterSize];
@@ -40,13 +43,15 @@ public class ClusterWalk {
 		FileUtils.readGraph(graphFile, nodes);
 		FileUtils.readCluster(clusterFile, nodes, clusters);
 		Utils.setClusterCentroid(nodes, clusters);
-		Utils.setClusterOrder(nodes, clusters);
+		//Utils.setClusterNeighbour(nodes, clusters);
+		System.out.println(System.currentTimeMillis());
 		Utils.setNodeShift(nodes, clusters);
+		System.out.println(System.currentTimeMillis());
 		Utils.sortNodeEdge(nodes);
 		FileUtils.initWalkFiles(walkDir, walkFile, rounds);
 		ExecutorService threadPool = Executors.newFixedThreadPool(rounds);
 		for (int r = 0; r < rounds; r++) {
-			threadPool.execute(new Walk(r, nodes, clusters));
+			threadPool.execute(new Walk(r, length, nodes, clusters));
 		}
 		threadPool.shutdown();
 		while (!threadPool.isTerminated()) {

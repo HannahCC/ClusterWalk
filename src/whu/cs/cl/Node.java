@@ -2,7 +2,6 @@ package whu.cs.cl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -13,8 +12,7 @@ public class Node {
 	List<Edge> adjacents = null;
 	int clusterIdx = -1;
 	double shift = 0;
-	int leftBoundary = -1;
-	int rightBoundary = -1;
+	long shiftSum = 0;
 
 	public Node(int idx) {
 		this.idx = idx;
@@ -34,92 +32,28 @@ public class Node {
 		this.clusterIdx = clusterIdx;
 	}
 
-	public int getClusterOrder(Cluster[] clusters) {
-		return clusters[clusterIdx].order;
-	}
-
 	public void sortEdge(Node[] nodes) {
-		/*if (this.idx == 4092 || this.idx == 6562){
-			System.out.println("debug");
-		}*/
+		/*
+		 * if (this.idx == 4092 || this.idx == 6562){
+		 * System.out.println("debug"); }
+		 */
 		for (Edge adjacent : adjacents) {
-			adjacent.weight = nodes[adjacent.nodeIdx].shift;
+			adjacent.weight = (int) (nodes[adjacent.nodeIdx].shift*1000);
+			shiftSum += adjacent.weight;
 		}
 		Collections.sort(adjacents);
-		int size = adjacents.size();
-		this.leftBoundary = -1;
-		this.rightBoundary = -1;
-		double boundary = this.shift;
-		for (int i = 0; i < size; i++) {
-			if (adjacents.get(i).weight < boundary) {
-				leftBoundary++;
-				rightBoundary++;
-			} else if (adjacents.get(i).weight == boundary) {
-				rightBoundary++;
-			} else if (adjacents.get(i).weight > boundary) {
-				rightBoundary++;
-				break;
-			}
-		}
-		int idx = 0;
-		Iterator<Edge> it = adjacents.iterator();
-		while (it.hasNext()) {
-			Edge adjacent = it.next();
-			int d = (int) adjacent.weight - (int) this.shift;
-			if (d < -1) { // 尽量向相邻的簇移动，除非没有邻居到相邻簇
-				if (idx < leftBoundary) {
-					it.remove();
-				}
-			} else if (d > 1) {
-				if (idx > rightBoundary) {
-					it.remove();
-				}
-			}
-			idx++;
-		}
-		size = adjacents.size();
-		this.leftBoundary = -1;
-		for (int i = 0; i < size; i++) {
-			if (adjacents.get(i).weight < boundary) { // <=会走的慢一些，但是有些节点只有相等的簇内邻居，另外这样会产生回路问题
-				this.leftBoundary++;
-			} else {
-				break;
-			}
-		}
 
-		this.rightBoundary = size;
-		for (int i = size - 1; i >= 0; i--) {
-			if (adjacents.get(i).weight > boundary) {
-				this.rightBoundary--;
-			} else {
-				break;
-			}
-		}
 	}
 
-	public int getRandomLeftAdj() {
-		int nextNodeIdx = -1;
-
-		if (this.leftBoundary == -1) {
-		} else if (this.leftBoundary == 0) {
-			nextNodeIdx = this.adjacents.get(0).nodeIdx;
-		} else {
-			nextNodeIdx = this.adjacents.get(random.nextInt(this.leftBoundary)).nodeIdx;
+	public int getRandomNextAdj() {
+		int num = random.nextInt((int)(shiftSum));
+		int temp = 0;
+		for (Edge adjacent : this.adjacents) {
+			temp += adjacent.weight;
+			if (num <= temp) {
+				return adjacent.nodeIdx;
+			}
 		}
-		return nextNodeIdx;
-	}
-
-	public int getRandomRightAdj() {
-		int nextNodeIdx = -1;
-		if (this.adjacents.size() == this.rightBoundary) {
-		} else if (this.adjacents.size() - 1 == this.rightBoundary) {
-			nextNodeIdx = this.adjacents.get(this.rightBoundary).nodeIdx;
-		} else {
-			nextNodeIdx = this.adjacents
-					.get(this.rightBoundary
-							+ random.nextInt(this.adjacents.size()
-									- this.rightBoundary)).nodeIdx;
-		}
-		return nextNodeIdx;
+		return -1;
 	}
 }

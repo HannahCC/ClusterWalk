@@ -7,14 +7,15 @@ import java.util.Random;
 
 public class Walk implements Runnable {
 
-	static final int maxWalkLength = 200;
+	int length = 80;
 	int round = -1;
 	Node[] nodes = null;
 	Cluster[] clusters = null;
 	Random random = new Random();
 
-	public Walk(int round, Node[] nodes, Cluster[] clusters) {
+	public Walk(int round, int length, Node[] nodes, Cluster[] clusters) {
 		this.round = round;
+		this.length = length;
 		this.nodes = nodes;
 		this.clusters = clusters;
 	}
@@ -26,49 +27,25 @@ public class Walk implements Runnable {
 				System.out.println("bebug");
 			}
 			List<Integer> walk = new ArrayList<>();
-			int order = node.getClusterOrder(clusters);
-			// int preNodeIdx = -1;
 			Node lastNode = node;
 			Node nextNode = null;
 			int nextNodeIdx = 0;
-			if (order >= 1) { // 往左边走
-				List<Integer> left_walk = new ArrayList<>();
-				do {
-					nextNodeIdx = lastNode.getRandomLeftAdj();
-					if (nextNodeIdx == -1)
-						break;
-					nextNode = nodes[nextNodeIdx];
-					left_walk.add(nextNode.idx);
-					// preNodeIdx = lastNode.idx;
-					lastNode = nextNode;
-				} while (lastNode.getClusterOrder(clusters) > 1
-						&& left_walk.size() < maxWalkLength);
-				int leftSize = left_walk.size();
-				for (int i = leftSize - 1; i >= 0; i--) {
-					walk.add(left_walk.get(i));
-				}
-			}
 			walk.add(node.idx);
-			// preNodeIdx = -1;
 			lastNode = node;
-			if (order <= clusters.length) {// 往右边走
-				do {
-					nextNodeIdx = lastNode.getRandomRightAdj();
-					if (nextNodeIdx == -1)
-						break;
-					nextNode = nodes[nextNodeIdx];
-					walk.add(nextNode.idx);
-					// preNodeIdx = lastNode.idx;
-					lastNode = nextNode;
-				} while (lastNode.getClusterOrder(clusters) < clusters.length
-						&& walk.size() < maxWalkLength);
-			}
+			do {
+				nextNodeIdx = lastNode.getRandomNextAdj();
+				if (nextNodeIdx == -1)
+					break;
+				nextNode = nodes[nextNodeIdx];
+				walk.add(nextNode.idx);
+				lastNode = nextNode;
+			} while (walk.size() < length);
 
-			/*for (Integer w : walk) {
-				System.out.print(w + "/"
-						+ nodes[w - 1].getClusterOrder(clusters) + "\t");
+			for (Integer w : walk) {
+				System.out.print(w + "/" + nodes[w - 1].clusterIdx + "\t");
 			}
-			System.out.println();*/
+			System.out.println();
+
 			try {
 				FileUtils.writeWalk(round, walk);
 			} catch (IOException e) {
