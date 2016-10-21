@@ -23,9 +23,6 @@ public class Walk implements Runnable {
 	@Override
 	public void run() {
 		for (Node node : nodes) {
-			if (node.idx == 4092 || node.idx == 6562) {
-				System.out.println("bebug");
-			}
 			List<Integer> walk = new ArrayList<>();
 			Node lastNode = node;
 			Node nextNode = null;
@@ -41,10 +38,10 @@ public class Walk implements Runnable {
 				lastNode = nextNode;
 			} while (walk.size() < length);
 
-			for (Integer w : walk) {
+			/*for (Integer w : walk) {
 				System.out.print(w + "/" + nodes[w - 1].clusterIdx + "\t");
 			}
-			System.out.println();
+			System.out.println();*/
 
 			try {
 				FileUtils.writeWalk(round, walk);

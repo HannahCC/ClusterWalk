@@ -17,6 +17,9 @@ class HeapNode {
 public class ClusterWalk {
 
 	public static void main(String args[]) throws IOException {
+		for (int i = 0, ls = args.length; i < ls; i++) {
+			System.out.print(args[i] + "\t");
+		}
 		String curPath = args[0];
 		String dataSet = args[1];
 		int dataSize = Integer.parseInt(args[2]);
@@ -35,7 +38,7 @@ public class ClusterWalk {
 
 		Node[] nodes = new Node[dataSize];
 		for (int i = 0; i < dataSize; i++) {
-			
+
 			nodes[i] = new Node(i + 1);
 		}
 		Cluster[] clusters = new Cluster[clusterSize];
@@ -43,10 +46,8 @@ public class ClusterWalk {
 		FileUtils.readGraph(graphFile, nodes);
 		FileUtils.readCluster(clusterFile, nodes, clusters);
 		Utils.setClusterCentroid(nodes, clusters);
-		//Utils.setClusterNeighbour(nodes, clusters);
-		System.out.println(System.currentTimeMillis());
+		// Utils.setClusterNeighbour(nodes, clusters);
 		Utils.setNodeShift(nodes, clusters);
-		System.out.println(System.currentTimeMillis());
 		Utils.sortNodeEdge(nodes);
 		FileUtils.initWalkFiles(walkDir, walkFile, rounds);
 		ExecutorService threadPool = Executors.newFixedThreadPool(rounds);
@@ -63,5 +64,4 @@ public class ClusterWalk {
 		}
 		FileUtils.mergeWalkFiles(walkFile, rounds);
 	}
-
 }

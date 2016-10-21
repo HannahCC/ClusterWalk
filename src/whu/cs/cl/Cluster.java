@@ -21,6 +21,7 @@ public class Cluster {
 				this.centroid = nodeIdx;
 			}
 		}
+		//System.out.println(maxDegree);
 	}
 
 

@@ -22,14 +22,18 @@ public class Utils {
 			double[] dist = dijkstra(cluster.centroid, nodes);
 			double newShift = 0;
 			for (int i = 0, size = nodes.length; i < size; i++) {
-				if(i==cluster.centroid)continue;
-				if(dist[i]==0){
+				if (i == cluster.centroid)
+					continue;
+				if (dist[i] == 0) {
 					System.out.println("error@@@!!!");
 				}
 				newShift = 1 / dist[i];
 				nodes[i].shift = newShift > nodes[i].shift ? newShift
 						: nodes[i].shift;
 			}
+		}
+		for (int i = 0, size = nodes.length; i < size; i++) {
+			System.out.println(nodes[i].shift);
 		}
 	}
 
