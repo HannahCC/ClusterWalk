@@ -1,59 +1,120 @@
 package whu.cs.cl;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class Node {
+public class Node implements Comparable<Node> {
 	static Random random = new Random(123456);
-	int idx = -1;
+	int id = -1;
+	boolean labeled = false;
+	List<Integer> adjacents = null;
 	int degree = 0;
-	List<Edge> adjacents = null;
-	int clusterIdx = -1;
-	double shift = 0;
-	long shiftSum = 0;
 
-	public Node(int idx) {
-		this.idx = idx;
-		adjacents = new ArrayList<>();
+	float[] vector = null;
+	List<Cluster> clusters = null;
+	Cluster[] mergedClusters = null;
+
+	public Node(int id, int labelSize) {
+		this.id = id;
+		this.adjacents = new ArrayList<>();
+		this.vector = new float[labelSize];
+		this.clusters = new ArrayList<>();
+	}
+
+	public void initVector() {
+		this.labeled = false;
+		for (int i = 0, size = this.vector.length; i < size; i++) {
+			this.vector[i] = random.nextInt(100) / 100;
+		}
+	}
+
+	public void resetCluster() {
+		this.clusters.clear();
+	}
+
+	public void mergeCluster(int labelSize) {
+		mergedClusters = new Cluster[labelSize];
+		for (Cluster cluster : clusters) {
+			for (int label : cluster.labels) {
+				if (mergedClusters[label] == null) {
+					mergedClusters[label] = cluster;
+				} else {
+					mergedClusters[label].mergeCluster(cluster);
+				}
+			}
+		}
+		this.clusters.clear();
 	}
 
 	public void addAdjacent(int idx) {
-		adjacents.add(new Edge(idx));
-		degree++;
-	}
-
-	public void setCluster(int clusterIdx) {
-		if (this.clusterIdx != -1) {
-			throw new RuntimeException(
-					"a node can not belong to more than one cluster.");
+		if (!adjacents.contains(idx)) {
+			degree++;
+			adjacents.add(idx);
 		}
-		this.clusterIdx = clusterIdx;
+
 	}
 
-	public void sortEdge(Node[] nodes) {
-		/*
-		 * if (this.idx == 4092 || this.idx == 6562){
-		 * System.out.println("debug"); }
-		 */
-		for (Edge adjacent : adjacents) {
-			adjacent.weight = (int) (nodes[adjacent.nodeIdx].shift*1000);
-			shiftSum += adjacent.weight;
+	public void setLabeled(boolean labeled) {
+		if (labeled && !this.labeled) {
+			Arrays.fill(this.vector, 0.0f);
 		}
-		Collections.sort(adjacents);
-
+		this.labeled = labeled;
 	}
 
-	public int getRandomNextAdj() {
-		int num = random.nextInt((int)(shiftSum));
-		int temp = 0;
-		for (Edge adjacent : this.adjacents) {
-			temp += adjacent.weight;
-			if (num <= temp) {
-				return adjacent.nodeIdx;
-			}
+	public void updateVector(int label, float value) {
+		this.vector[label] += value;
+		if (this.vector[label] > 1)
+			this.vector[label] = 1;
+	}
+
+	public void updateVector(List<Integer> labels, float value) {
+		for (int label : labels) {
+			this.vector[label] += value;
+			if (this.vector[label] > 1)
+				this.vector[label] = 1;
 		}
-		return -1;
 	}
+
+	public Node getNextAdj(Node[] nodes, int label) {
+		if (this.mergedClusters[label] == null) {
+			int idx = random.nextInt(this.adjacents.size());
+			//System.out.println("random adj.label = " + label);
+			return nodes[adjacents.get(idx)];
+		} else {
+			int idx = random.nextInt(this.mergedClusters[label].nodes.size());
+			return this.mergedClusters[label].nodes.get(idx);
+		}
+	}
+
+	public void setClusterLabel(Node[] nodes, int labelSize) {
+		for (Cluster cluster : clusters) {
+			cluster.setLabel(labelSize);
+		}
+	}
+
+	public void updateClusterNodeVector(Node[] nodes) {
+		for (Cluster cluster : clusters) {
+			if (cluster.labels == null)
+				continue;
+			cluster.updateNodeVector();
+		}
+	}
+
+	public double cosSimilarity(Node nodeB) {
+		double sum = 0;
+		for (int i = 0, size = this.vector.length; i < size; i++) {
+			float temp = this.vector[i] - nodeB.vector[i];
+			sum += temp * temp;
+		}
+		sum = Math.sqrt(sum);
+		return sum;
+	}
+
+	@Override
+	public int compareTo(Node o) {
+		return this.degree - o.degree;
+	}
+
 }

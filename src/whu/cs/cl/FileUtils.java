@@ -22,29 +22,26 @@ public class FileUtils {
 			String[] items = line.split("\\s+");
 			int idx1 = Integer.parseInt(items[0]);
 			int idx2 = Integer.parseInt(items[1]);
-			nodes[idx1-1].addAdjacent(idx2-1);
+			nodes[idx1 - 1].addAdjacent(idx2 - 1);
 		}
 		br.close();
 	}
 
-	public static void readCluster(String clusterFile,
-			Node[] nodes, Cluster[] clusters )
-			throws IOException {
-		File f = new File(clusterFile);
-		BufferedReader br = new BufferedReader(new FileReader(f));
-		int i = 0;
-		String line = null;
-		while (null != (line = br.readLine())) {
-			String[] items = line.split("\\s+");
-			clusters[i] = new Cluster();
-			for (String item : items) {
-				int idx = Integer.parseInt(item)-1;
-				clusters[i].addNode(idx);
-				nodes[idx].setCluster(i);
+	public static void readLabel(String labelFileDir, int labelSize, int fold,
+			Node[] nodes) throws IOException {
+		for (int i = 1; i <= labelSize; i++) {
+			File f = new File(labelFileDir + fold + "/" + i + "_trainids.txt");
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			String line = null;
+			while (null != (line = br.readLine())) {
+				if (line.equals(""))
+					continue;
+				int idx = Integer.parseInt(line);
+				nodes[idx - 1].setLabeled(true);
+				nodes[idx - 1].updateVector(i - 1, 1);
 			}
-			i++;
+			br.close();
 		}
-		br.close();
 	}
 
 	public static void initWalkFiles(String walkDirName, String walkFileName,
@@ -67,6 +64,7 @@ public class FileUtils {
 			bws.get(r).flush();
 			bws.get(r).close();
 		}
+		bws.clear();
 		File walkFile = new File(walkFileName);
 		BufferedWriter bw = new BufferedWriter(new FileWriter(walkFile));
 		for (int r = 0; r < rounds; r++) {

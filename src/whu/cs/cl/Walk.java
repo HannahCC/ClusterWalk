@@ -3,52 +3,47 @@ package whu.cs.cl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
 public class Walk implements Runnable {
 
-	int length = 80;
-	int round = -1;
+	int length;
+	int round;
 	Node[] nodes = null;
-	Cluster[] clusters = null;
-	Random random = new Random();
+	CountDownLatch countDownLatch = null;
 
-	public Walk(int round, int length, Node[] nodes, Cluster[] clusters) {
+	public Walk(int round, int length, Node[] nodes,
+			CountDownLatch countDownLatch) {
 		this.round = round;
 		this.length = length;
 		this.nodes = nodes;
-		this.clusters = clusters;
+		this.countDownLatch = countDownLatch;
 	}
 
 	@Override
 	public void run() {
+		Node lastNode = null;
+		Node nextNode = null;
 		for (Node node : nodes) {
-			List<Integer> walk = new ArrayList<>();
-			Node lastNode = node;
-			Node nextNode = null;
-			int nextNodeIdx = 0;
-			walk.add(node.idx);
-			lastNode = node;
-			do {
-				nextNodeIdx = lastNode.getRandomNextAdj();
-				if (nextNodeIdx == -1)
-					break;
-				nextNode = nodes[nextNodeIdx];
-				walk.add(nextNode.idx);
-				lastNode = nextNode;
-			} while (walk.size() < length);
-
-			/*for (Integer w : walk) {
-				System.out.print(w + "/" + nodes[w - 1].clusterIdx + "\t");
-			}
-			System.out.println();*/
-
-			try {
-				FileUtils.writeWalk(round, walk);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			for (int label = 0, size = node.mergedClusters.length; label < size; label++) {
+				if (node.mergedClusters[label] == null)
+					continue;
+				List<Integer> walk = new ArrayList<>();
+				lastNode = node;
+				walk.add(node.id);
+				while (walk.size() < length) {
+					nextNode = lastNode.getNextAdj(nodes, label);
+					walk.add(nextNode.id);
+					lastNode = nextNode;
+				}
+				try {
+					FileUtils.writeWalk(round, walk);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
+		this.countDownLatch.countDown();
 	}
 }
