@@ -19,6 +19,10 @@ public class ClusterWalk {
 
 	public static void main(String args[]) throws IOException,
 			InterruptedException {
+		for(String arg:args){
+			System.out.print(arg+"\t");
+		}
+		System.out.println();
 		String curPath = args[0];
 		String dataSet = args[1];
 		int dataSize = Integer.parseInt(args[2]);
