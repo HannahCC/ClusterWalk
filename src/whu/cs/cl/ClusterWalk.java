@@ -19,8 +19,8 @@ public class ClusterWalk {
 
 	public static void main(String args[]) throws IOException,
 			InterruptedException {
-		for(String arg:args){
-			System.out.print(arg+"\t");
+		for (String arg : args) {
+			System.out.print(arg + "\t");
 		}
 		System.out.println();
 		String curPath = args[0];
@@ -42,25 +42,30 @@ public class ClusterWalk {
 
 		Node[] nodes = new Node[dataSize];
 		for (int i = 0; i < dataSize; i++) {
-			nodes[i] = new Node(i + 1, labelSize);
+			nodes[i] = new Node(i + 1);
 		}
 
-		FileUtils.readGraph(graphFile, nodes);
+		FileUtils.readGraph(graphFile, nodes, labelSize);
 		ExecutorService threadPool = Executors.newFixedThreadPool(rounds);
 
 		for (int f = 0; f < foldSize; f++) {
+			System.out.println("start to walk. fold " + f);
 			initNode(nodes);
 			FileUtils.readLabel(labelFileDir, labelSize, f, nodes);
 			int r = 0;
 			while (r++ < iter) {
 				resetCluster(nodes);// 每次聚类都重置簇
 				for (Node node : nodes) {// 对每个node的邻居进行聚类，直到指定次数，且每个聚类都确定了属性
+					if (node.fobidden)
+						continue;
 					Canopy canopy = new Canopy(node.adjacents, node.clusters,
 							nodes);
 					canopy.cluster();
 				}
 				for (Node node : nodes) {
-					node.setClusterLabel(nodes, labelSize);
+					if (node.fobidden)
+						continue;
+					node.setClusterLabel(labelSize);
 					node.updateClusterNodeVector(nodes);
 				}
 			}
@@ -86,19 +91,22 @@ public class ClusterWalk {
 
 	private static void mergeCluster(Node[] nodes, int labelSize) {
 		for (Node node : nodes) {
-			node.mergeCluster(labelSize);
+			if (!node.fobidden)
+				node.mergeCluster(labelSize);
 		}
 	}
 
 	private static void resetCluster(Node[] nodes) {
 		for (Node node : nodes) {
-			node.resetCluster();
+			if (!node.fobidden)
+				node.resetCluster();
 		}
 	}
 
 	private static void initNode(Node[] nodes) {
 		for (Node node : nodes) {
-			node.initVector();
+			if (!node.fobidden)
+				node.initVector();
 		}
 	}
 }

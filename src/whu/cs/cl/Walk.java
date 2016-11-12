@@ -25,6 +25,7 @@ public class Walk implements Runnable {
 		Node lastNode = null;
 		Node nextNode = null;
 		for (Node node : nodes) {
+			if (node.fobidden)continue;
 			for (int label = 0, size = node.mergedClusters.length; label < size; label++) {
 				if (node.mergedClusters[label] == null)
 					continue;

@@ -11,18 +11,22 @@ public class Node implements Comparable<Node> {
 	boolean labeled = false;
 	List<Integer> adjacents = null;
 	int degree = 0;
+	boolean fobidden = true;
 
 	float[] vector = null;
 	List<Cluster> clusters = null;
 	Cluster[] mergedClusters = null;
 
-	public Node(int id, int labelSize) {
+	public Node(int id) {
 		this.id = id;
+	}
+
+	public void init(int labelSize) {
+		this.fobidden = false;
 		this.adjacents = new ArrayList<>();
 		this.vector = new float[labelSize];
 		this.clusters = new ArrayList<>();
 	}
-
 	public void initVector() {
 		this.labeled = false;
 		for (int i = 0, size = this.vector.length; i < size; i++) {
@@ -88,7 +92,7 @@ public class Node implements Comparable<Node> {
 		}
 	}
 
-	public void setClusterLabel(Node[] nodes, int labelSize) {
+	public void setClusterLabel(int labelSize) {
 		for (Cluster cluster : clusters) {
 			cluster.setLabel(labelSize);
 		}

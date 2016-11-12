@@ -13,16 +13,22 @@ public class FileUtils {
 
 	static List<BufferedWriter> bws = null;
 
-	public static void readGraph(String graphFile, Node[] nodes)
+	public static void readGraph(String graphFile, Node[] nodes, int labelSize)
 			throws IOException {
 		File f = new File(graphFile);
 		BufferedReader br = new BufferedReader(new FileReader(f));
 		String line = null;
 		while (null != (line = br.readLine())) {
 			String[] items = line.split("\\s+");
-			int idx1 = Integer.parseInt(items[0]);
-			int idx2 = Integer.parseInt(items[1]);
-			nodes[idx1 - 1].addAdjacent(idx2 - 1);
+			int idx1 = Integer.parseInt(items[0]) - 1;
+			int idx2 = Integer.parseInt(items[1]) - 1;
+			if (nodes[idx1].fobidden) {
+				nodes[idx1].init(labelSize);
+			}
+			if (nodes[idx2].fobidden) {
+				nodes[idx2].init(labelSize);
+			}
+			nodes[idx1].addAdjacent(idx2);
 		}
 		br.close();
 	}
