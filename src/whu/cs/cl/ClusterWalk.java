@@ -29,8 +29,9 @@ public class ClusterWalk {
 		int labelSize = Integer.parseInt(args[3]);
 		int trainPercent = Integer.parseInt(args[4]);
 		int foldSize = Integer.parseInt(args[5]);
-		int rounds = Integer.parseInt(args[6]);
-		int length = Integer.parseInt(args[7]);
+		int foldStart = Integer.parseInt(args[6]);
+		int rounds = Integer.parseInt(args[7]);
+		int length = Integer.parseInt(args[8]);
 		int iter = 10; // canopy 迭代次数
 
 		String graphFile = curPath + "graphs/" + dataSet + ".edgelist";
@@ -48,7 +49,7 @@ public class ClusterWalk {
 		FileUtils.readGraph(graphFile, nodes, labelSize);
 		ExecutorService threadPool = Executors.newFixedThreadPool(rounds);
 
-		for (int f = 0; f < foldSize; f++) {
+		for (int f = foldStart; f < foldSize; f++) {
 			System.out.println("start to walk. fold " + f);
 			initNode(nodes);
 			FileUtils.readLabel(labelFileDir, labelSize, f, nodes);
